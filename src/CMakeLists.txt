@@ -8,10 +8,15 @@ IF(USE_OPENGL_GLUT)
 ENDIF()
 
 IF(USE_OPENGL_GLFW)
-    ADD_EXECUTABLE(hello_glfw hello_glfw.cc)
+    MESSAGE(STATUS "[GLEW] configuration , ref: http://www.glfw.org/docs/latest/build.html#build_link_cmake_source ")
+    MESSAGE(STATUS "[GLEW] coding , ref: http://www.glfw.org/docs/latest/quick.html")
 
-    TARGET_LINK_LIBRARIES(hello_glfw ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
+    ADD_EXECUTABLE(hello_glfw3 hello_glfw3.cc)
 
-    SET_TARGET_PROPERTIES(hello_glfw PROPERTIES OUTPUT_NAME "hello_glfw")
+    TARGET_LINK_LIBRARIES(hello_glfw3 ${OPENGL_LIBRARIES})
+    TARGET_LINK_LIBRARIES(hello_glfw3 ${GLFW_LIBRARIES})
+    #TARGET_LINK_LIBRARIES(hello_glfw3 ${GLFW_STATIC_LIBRARIES})
+
+    SET_TARGET_PROPERTIES(hello_glfw3 PROPERTIES OUTPUT_NAME "hello_glfw3")
 ENDIF()
 
