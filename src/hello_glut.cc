@@ -55,42 +55,20 @@ void drawline(float x1,float y1,float x2,float y2)  //The function to draw a lin
 void DisplaySence(void)
 {
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
     glBegin(GL_POLYGON);
+    //glBegin(GL_QUADS);
     glColor3f(color[0],color[1],color[2]);
-    glBegin(GL_QUADS);
     glVertex3f(pos[0],pos[1],pos[2]);
+    glColor3f(color[1],color[2],color[0]);
     glVertex3f(pos[1],pos[2],pos[0]);
+    glColor3f(color[2],cmolor[0],color[1]);
     glVertex3f(pos[2],pos[0],pos[1]);
     glEnd();
-    glBegin(GL_POLYGON);
-    glColor3f(color[0],color[1],color[2]);
-    glBegin(GL_QUADS);
-    glVertex3f(-pos[0],-pos[1],-pos[2]);
-    glVertex3f(-pos[1],-pos[2],-pos[0]);
-    glVertex3f(-pos[2],-pos[0],-pos[1]);
-    glEnd();
-    
+
+
     drawline(-300,-128,300,-128);
-    
-    int z;
-    int step = 1;
-    for(z = 0 ; z+color[0]*100 < 80 && z+color[1]*100 < 80 && z+color[2]*100 < 80; z += 5 )
-    {
-            glBegin(GL_POLYGON);
-            glColor3f(colorPos(color[0] +z * 0.1),colorPos(color[1]+z * 0.1),colorPos(color[2]+z * 0.1));
-            glBegin(GL_QUADS);
-            glVertex3f(pos[0]+ z * step,pos[1]+ z * step,pos[2]+ z * step);
-            glVertex3f(pos[1]+ z * step,pos[2]+ z * step,pos[0]+ z * step);
-            glVertex3f(pos[2]+ z * step,pos[0]+ z * step,pos[1]+ z * step);
-            glEnd();
-            glBegin(GL_POLYGON);
-            glColor3f(colorPos(color[1]+z * 0.1),colorPos(color[2]+z * 0.1),colorPos(color[0]+z * 0.1));
-            glBegin(GL_QUADS);
-            glVertex3f(-pos[0]+ z * step,-pos[1]+ z * step,-pos[2]+ z * step);
-            glVertex3f(-pos[1]+ z * step,-pos[2]+ z * step,-pos[0]+ z * step);
-            glVertex3f(-pos[2]+ z * step,-pos[0]+ z * step,-pos[1]+ z * step);
-            glEnd();    
-    }
+
     glutSwapBuffers();
 }
 void TimerFunction(int value)
@@ -100,9 +78,13 @@ void TimerFunction(int value)
         mode ++;
         if(mode == 3) mode = 0;
     }
-    color[mode % 3] = (float)i/255;
-    color[(mode + 1) % 3] = (float)(255 - i)/255;
-    color[(mode + 2) % 3] = 0;
+    //color[mode % 3] = (float)i/255;
+    //color[(mode + 1) % 3] = (float)(255 - i)/255;
+    //color[(mode + 2) % 3] = 0;
+
+    color[0] = 1.f;
+    color[1] = 0;
+    color[2] = 0;
     
     pos[mode % 3] = i - 128;
     pos[(mode + 1) % 3] = 128 - i;
