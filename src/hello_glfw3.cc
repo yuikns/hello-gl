@@ -3,7 +3,14 @@
 
 #include <string>
 
+
+#ifdef __APPLE__
 #include <GLFW/glfw3.h>
+//#elif defined(_WIN32) || defined(_WIN64)
+//#include <GLFW/glfw3.h> //I DON'T KNOW... NOT TESTED
+#else // for linux : yum install glfw* :)
+#include <GL/glfw3.h>
+#endif
 
 void error_callback(int error, const char* description) {
     fprintf(stderr, "[GLFW] error message: %s\n", description);
