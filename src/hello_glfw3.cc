@@ -76,9 +76,22 @@ int main(int argc, char* argv[]) {
     // http://www.glfw.org/docs/latest/group__input.html#ga7e496507126f35ea72f01b2e6ef6d155
     glfwSetKeyCallback(window, key_callback);
 
+    int csec = 0;
+    int scnt = 0;
     // Loop until the user closes the window
     // http://www.glfw.org/docs/latest/group__window.html#ga24e02fbfefbb81fc45320989f8140ab5
     while (!glfwWindowShouldClose(window)) {
+        int rsec = (int)glfwGetTime();
+        scnt ++;
+        if(rsec - csec > 3) {
+            int rc = scnt / (rsec - csec);
+            fprintf(stdout,"FPS: %d (%d/%d)\n",rc,scnt,(rsec - csec));
+            fflush(stdout);
+            csec = rsec;
+            scnt = 0;
+        }
+        
+        
         /* Render here */
         float ratio;
         int width, height;
@@ -87,10 +100,19 @@ int main(int argc, char* argv[]) {
         glViewport(0, 0, width, height);
 
         glClear(GL_COLOR_BUFFER_BIT);
-        glMatrixMode(GL_PROJECTION);
+        //glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        //glMatrixMode ref: https://www.opengl.org/sdk/docs/man2/xhtml/glMatrixMode.xml
+        glMatrixMode(GL_PROJECTION); //Applies subsequent matrix operations to the projection matrix stack.
         glLoadIdentity();
+        //glOrtho 
+        //void glOrtho(	GLdouble left,
+        //     GLdouble right,
+        //     GLdouble bottom,
+        //     GLdouble top,
+        //     GLdouble nearVal,
+        //     GLdouble farVal);
         glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        glMatrixMode(GL_MODELVIEW);
+        glMatrixMode(GL_MODELVIEW); //Applies subsequent matrix operations to the modelview matrix stack.
         glLoadIdentity();
         glRotatef((float)glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
 
@@ -102,11 +124,22 @@ int main(int argc, char* argv[]) {
         glColor3f(0.f, 0.f, 1.f);
         glVertex3f(0.f, 0.6f, 0.f);
         glEnd();
+        
+        
+        /*
+        glBegin(GL_POLYGON);
+        glColor3f(1.f, 0.f, 0.f);
+        glVertex3f(-0.6f, -0.4f, 0.f);
+        glVertex3f(-0.6f, -0.4f, 0.f);
+        glVertex3f(-0.6f, -0.4f, 0.f);
+        glEnd();
+        */
 
         glBegin(GL_LINES);
         glColor3f(1.f, 1.f, 0.f);
-        glVertex2f(-width/3, -height/3);
-        glVertex2f(width/3, height/3);
+        //glVertex2f(0.3f, 0.3f);
+        glVertex2f(0.0,0.0);
+        glVertex2f(0.5,0.5);
         glEnd();
 
         // Swap front and back buffers
