@@ -3,12 +3,11 @@
 
 #include <string>
 
-
 #ifdef __APPLE__
 #include <GLFW/glfw3.h>
 //#elif defined(_WIN32) || defined(_WIN64)
 //#include <GLFW/glfw3.h> //I DON'T KNOW... NOT TESTED
-#else // for linux : yum install glfw* :)
+#else  // for linux : yum install glfw* :)
 #include <GL/glfw3.h>
 #endif
 
@@ -49,6 +48,29 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
+void scroll_callback(GLFWwindow* window, double x_axis, double y_axis) {
+    printf("[SCROLL] %.3f %.3f\n", x_axis, y_axis);
+    fflush(NULL);
+}
+
+void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
+    // http://www.glfw.org/docs/3.0/group__buttons.html
+    printf("[MOUSE] %d %d %d\n", button, action, mods);
+    fflush(NULL);
+}
+
+// http://www.glfw.org/docs/3.0/group__input.html#ga762d898d9b0241d7e3e3b767c6cf318f
+void cursor_callback(GLFWwindow* window, int entered) {
+    printf("[CURSOR] %s\n", entered == GL_TRUE ? "GL_TRUE" : "GL_FALSE");
+    fflush(NULL);
+}
+
+// http://www.glfw.org/docs/3.0/group__input.html#ga592fbfef76d88f027cb1bc4c36ebd437
+void cursor_pos_callback(GLFWwindow* window, double x_coordinate, double y_coordinate) {
+    printf("[C_POS] %.3f %.3f\n", x_coordinate, y_coordinate);
+    fflush(NULL);
+}
+
 int main(int argc, char* argv[]) {
     printf("Compiled against GLFW %i.%i.%i\n", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
     int major, minor, revision;
@@ -80,8 +102,23 @@ int main(int argc, char* argv[]) {
     // http://www.glfw.org/docs/latest/group__init.html#gaa5d796c3cf7c1a7f02f845486333fb5f
     glfwSetErrorCallback(error_callback);
 
+    // http://www.glfw.org/docs/3.0/group__input.html#gaa92336e173da9c8834558b54ee80563b
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     // http://www.glfw.org/docs/latest/group__input.html#ga7e496507126f35ea72f01b2e6ef6d155
     glfwSetKeyCallback(window, key_callback);
+
+    // http://www.glfw.org/docs/3.0/group__input.html#gacf02eb10504352f16efda4593c3ce60e
+    glfwSetScrollCallback(window, scroll_callback);
+
+    // http://www.glfw.org/docs/3.0/group__input.html#gaef49b72d84d615bca0a6ed65485e035d
+    glfwSetMouseButtonCallback(window, mouse_callback);
+
+    // http://www.glfw.org/docs/3.0/group__input.html#gaa299c41dd0a3d171d166354e01279e04
+    glfwSetCursorEnterCallback(window, cursor_callback);
+
+    // http://www.glfw.org/docs/3.0/group__input.html#ga7dad39486f2c7591af7fb25134a2501d
+    glfwSetCursorPosCallback(window, cursor_pos_callback);
 
     int csec = 0;
     int scnt = 0;
@@ -89,16 +126,15 @@ int main(int argc, char* argv[]) {
     // http://www.glfw.org/docs/latest/group__window.html#ga24e02fbfefbb81fc45320989f8140ab5
     while (!glfwWindowShouldClose(window)) {
         int rsec = (int)glfwGetTime();
-        scnt ++;
-        if(rsec - csec > 3) {
+        scnt++;
+        if (rsec - csec > 3) {
             int rc = scnt / (rsec - csec);
-            fprintf(stdout,"FPS: %d (%d/%d)\n",rc,scnt,(rsec - csec));
+            fprintf(stdout, "FPS: %d (%d/%d)\n", rc, scnt, (rsec - csec));
             fflush(stdout);
             csec = rsec;
             scnt = 0;
         }
-        
-        
+
         /* Render here */
         float ratio;
         int width, height;
@@ -107,19 +143,19 @@ int main(int argc, char* argv[]) {
         glViewport(0, 0, width, height);
 
         glClear(GL_COLOR_BUFFER_BIT);
-        //glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-        //glMatrixMode ref: https://www.opengl.org/sdk/docs/man2/xhtml/glMatrixMode.xml
-        glMatrixMode(GL_PROJECTION); //Applies subsequent matrix operations to the projection matrix stack.
+        // glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        // glMatrixMode ref: https://www.opengl.org/sdk/docs/man2/xhtml/glMatrixMode.xml
+        glMatrixMode(GL_PROJECTION);  // Applies subsequent matrix operations to the projection matrix stack.
         glLoadIdentity();
-        //glOrtho 
-        //void glOrtho(	GLdouble left,
+        // glOrtho
+        // void glOrtho(	GLdouble left,
         //     GLdouble right,
         //     GLdouble bottom,
         //     GLdouble top,
         //     GLdouble nearVal,
         //     GLdouble farVal);
         glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        glMatrixMode(GL_MODELVIEW); //Applies subsequent matrix operations to the modelview matrix stack.
+        glMatrixMode(GL_MODELVIEW);  // Applies subsequent matrix operations to the modelview matrix stack.
         glLoadIdentity();
         glRotatef((float)glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
 
@@ -131,8 +167,7 @@ int main(int argc, char* argv[]) {
         glColor3f(0.f, 0.f, 1.f);
         glVertex3f(0.f, 0.6f, 0.f);
         glEnd();
-        
-        
+
         /*
         glBegin(GL_POLYGON);
         glColor3f(1.f, 0.f, 0.f);
@@ -144,9 +179,9 @@ int main(int argc, char* argv[]) {
 
         glBegin(GL_LINES);
         glColor3f(1.f, 1.f, 0.f);
-        //glVertex2f(0.3f, 0.3f);
-        glVertex2f(0.0,0.0);
-        glVertex2f(0.5,0.5);
+        // glVertex2f(0.3f, 0.3f);
+        glVertex2f(0.0, 0.0);
+        glVertex2f(0.5, 0.5);
         glEnd();
 
         // Swap front and back buffers
