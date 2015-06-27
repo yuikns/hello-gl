@@ -2,7 +2,7 @@
     #include <OpenGL/gl.h>  
     #include <Glut/glut.h>
 #elif defined(_WIN32) || defined(_WIN64)
-    #include <GLUT/glut.h>
+    #include <GLUT/glcmolorut.h>
 #else
      #include <GL/glut.h>
 #endif
@@ -62,7 +62,7 @@ void DisplaySence(void)
     glVertex3f(pos[0],pos[1],pos[2]);
     glColor3f(color[1],color[2],color[0]);
     glVertex3f(pos[1],pos[2],pos[0]);
-    glColor3f(color[2],cmolor[0],color[1]);
+    glColor3f(color[2],color[0],color[1]);
     glVertex3f(pos[2],pos[0],pos[1]);
     glEnd();
 
