@@ -8,7 +8,7 @@
 //#elif defined(_WIN32) || defined(_WIN64)
 //#include <GLFW/glfw3.h> //I DON'T KNOW... NOT TESTED
 #else  // for linux : yum install glfw* :)
-#include <GL/glfw3.h>
+#include <GLFW/glfw3.h>
 #endif
 
 void error_callback(int error, const char* description) {
@@ -25,9 +25,9 @@ std::string key_callback_mod_parse(int mods) {
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    printf("[KEY]: %c %d %d %s %s --- %.3f\n", key, key, scancode,
-           action == GLFW_PRESS ? "GLFW_PRESS" : (action == GLFW_RELEASE ? "GLFW_RELEASE" : "GLFW_REPEAT"),
-           key_callback_mod_parse(mods).c_str(), glfwGetTime());
+    //printf("[KEY]: %c %d %d %s %s --- %.3f\n", key, key, scancode,
+    //       action == GLFW_PRESS ? "GLFW_PRESS" : (action == GLFW_RELEASE ? "GLFW_RELEASE" : "GLFW_REPEAT"),
+    //       key_callback_mod_parse(mods).c_str(), glfwGetTime());
     fflush(NULL);
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         // http://www.glfw.org/docs/latest/group__window.html#ga49c449dde2a6f87d996f4daaa09d6708
@@ -49,25 +49,25 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 void scroll_callback(GLFWwindow* window, double x_axis, double y_axis) {
-    printf("[SCROLL] %.3f %.3f\n", x_axis, y_axis);
+    //printf("[SCROLL] %.3f %.3f\n", x_axis, y_axis);
     fflush(NULL);
 }
 
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
     // http://www.glfw.org/docs/3.0/group__buttons.html
-    printf("[MOUSE] %d %d %d\n", button, action, mods);
+    //printf("[MOUSE] %d %d %d\n", button, action, mods);
     fflush(NULL);
 }
 
 // http://www.glfw.org/docs/3.0/group__input.html#ga762d898d9b0241d7e3e3b767c6cf318f
 void cursor_callback(GLFWwindow* window, int entered) {
-    printf("[CURSOR] %s\n", entered == GL_TRUE ? "GL_TRUE" : "GL_FALSE");
+    //printf("[CURSOR] %s\n", entered == GL_TRUE ? "GL_TRUE" : "GL_FALSE");
     fflush(NULL);
 }
 
 // http://www.glfw.org/docs/3.0/group__input.html#ga592fbfef76d88f027cb1bc4c36ebd437
 void cursor_pos_callback(GLFWwindow* window, double x_coordinate, double y_coordinate) {
-    printf("[C_POS] %.3f %.3f\n", x_coordinate, y_coordinate);
+    //printf("[C_POS] %.3f %.3f\n", x_coordinate, y_coordinate);
     fflush(NULL);
 }
 
