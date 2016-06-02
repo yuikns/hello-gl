@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <unistd.h>
+#include <math.h>
 
 #include <string>
 
@@ -10,6 +11,11 @@
 #else  // for linux : yum install glfw* :)
 #include <GLFW/glfw3.h>
 #endif
+
+extern "C" {
+#include <ft2build.h>
+#include FT_FREETYPE_H
+}
 
 void error_callback(int error, const char* description) {
     fprintf(stderr, "[GLFW] error message: %s\n", description);
@@ -71,7 +77,118 @@ void cursor_pos_callback(GLFWwindow* window, double x_coordinate, double y_coord
     fflush(NULL);
 }
 
+/* origin is the upper left corner */
+unsigned char image[4096][4096];
+
+
+void draw_bitmap(FT_Bitmap* bitmap, FT_Int x, FT_Int y, int width, int height) {
+    FT_Int i, j, p, q;
+    FT_Int x_max = x + bitmap->width;
+    FT_Int y_max = y + bitmap->rows;
+
+    for (i = x, p = 0; i < x_max; i++, p++) {
+        for (j = y, q = 0; j < y_max; j++, q++) {
+            if (i < 0 || j < 0 || i >= width || j >= height) continue;
+            image[j][i] |= bitmap->buffer[q * bitmap->width + p];
+        }
+    }
+}
+
+void ftinit(int width, int height) {
+    /*
+    fprintf(stderr,"HINT::STARTING...\n");
+    // FT START
+    // init face
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft))
+        fprintf(stderr,"ERROR[%d]::FREETYPE: Could not init FreeType Library \n", __LINE__);
+
+    // set face
+    FT_Face face;
+    if (FT_New_Face(ft, "/Users/yu/Library/Fonts/FantasqueSansMono-RegItalic.ttf", 0, &face))
+        fprintf(stderr,"ERROR[%d]::FREETYPE: Failed to load font \n", __LINE__);
+    
+    // set size
+    FT_Set_Pixel_Sizes(face, 0, 48);  
+    
+    // load char
+    if (FT_Load_Char(face, 'X', FT_LOAD_RENDER))
+        fprintf(stderr,"ERROR[%d]::FREETYTPE: Failed to load Glyph \n", __LINE__);
+    // FT END
+    */
+    
+    FT_Library library;
+    FT_Face face;
+
+    FT_GlyphSlot slot;
+    FT_Matrix matrix; /* transformation matrix */
+    FT_Vector pen;    /* untransformed origin  */
+    FT_Error error;
+
+    char* filename= "../res/fonts/FantasqueSansMono-RegItalic.ttf"; /* first argument     */
+    char* text = "enjoy coding, enjoy life!";     /* second argument    */
+
+    double angle;
+    int target_height;
+    int n, num_chars;
+
+    
+    num_chars = strlen(text);
+    // angle = (25.0 / 360) * 3.14159 * 2; /* use 25 degrees     */
+    angle = (3.0 / 360) * 3.14159 * 2; /* use 1 degrees     */
+    target_height = height;
+
+    error = FT_Init_FreeType(&library); /* initialize library */
+    /* error handling omitted */
+
+    error = FT_New_Face(library, filename, 0, &face); /* create face object */
+    /* error handling omitted */
+
+    /* use 50pt at 100dpi */
+    //error = FT_Set_Char_Size(face, 50 * 64, 0, 100, 0); /* set character size */
+    error = FT_Set_Char_Size(face, 64 * 64, 0, 100, 0); /* set character size */
+    /* error handling omitted */
+
+    slot = face->glyph;
+
+    /* set up matrix */
+    matrix.xx = (FT_Fixed)(cos(angle) * 0x10000L);
+    matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
+    matrix.yx = (FT_Fixed)(sin(angle) * 0x10000L);
+    matrix.yy = (FT_Fixed)(cos(angle) * 0x10000L);
+
+    /* the pen position in 26.6 cartesian space coordinates; */
+    /* start at (300,200) relative to the upper left corner  */
+    //pen.x = 300 * 64;
+    //pen.y = (target_height - 200) * 64;
+    pen.x = 64 * width / 20;
+    pen.y = (target_height - 400) * 64;
+
+    for (n = 0; n < num_chars; n++) {
+        /* set transformation */
+        FT_Set_Transform(face, &matrix, &pen);
+        /* load glyph image into the slot (erase previous one) */
+        error = FT_Load_Char(face, text[n], FT_LOAD_RENDER);
+        if (error) continue; /* ignore errors */
+
+        /* now, draw to our target surface (convert position) */
+        draw_bitmap(&slot->bitmap, slot->bitmap_left, target_height - slot->bitmap_top, width, height);
+
+        /* increment pen position */
+        pen.x += slot->advance.x;
+        pen.y += slot->advance.y;
+    }
+
+    //show_image();
+
+    FT_Done_Face(face);
+    FT_Done_FreeType(library);
+    
+    
+}
+
 int main(int argc, char* argv[]) {
+    
     printf("Compiled against GLFW %i.%i.%i\n", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
     int major, minor, revision;
     glfwGetVersion(&major, &minor, &revision);
@@ -154,11 +271,14 @@ int main(int argc, char* argv[]) {
         //     GLdouble top,
         //     GLdouble nearVal,
         //     GLdouble farVal);
-        glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+        
+        //glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
         glMatrixMode(GL_MODELVIEW);  // Applies subsequent matrix operations to the modelview matrix stack.
         glLoadIdentity();
-        glRotatef((float)glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
-
+        //glRotatef((float)glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
+        glRotatef(0.f, 0.f, 0.f, 1.f);
+        
+        /*
         glBegin(GL_TRIANGLES);
         glColor3f(1.f, 0.f, 0.f);
         glVertex3f(-0.6f, -0.4f, 0.f);
@@ -167,6 +287,7 @@ int main(int argc, char* argv[]) {
         glColor3f(0.f, 0.f, 1.f);
         glVertex3f(0.f, 0.6f, 0.f);
         glEnd();
+        */
 
         /*
         glBegin(GL_POLYGON);
@@ -176,13 +297,48 @@ int main(int argc, char* argv[]) {
         glVertex3f(-0.6f, -0.4f, 0.f);
         glEnd();
         */
+        
+    
+        for(int i = 0; i < height; i ++ ) {
+            for(int j = 0; j < width; j ++) {
+                image[i][j] = 0;
+            }
+        }
+        ftinit(width,height);
+        
+        glPointSize(1);
+        
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                // h - w
+                //putchar(image[i][j] == 0 ? ' ' : i2c(image[i][j]));
+                double cval = image[i][j] * 1.0 / 256;
+                double xval = j * 2.0 / width - 1.0;
+                double yval = i * 2.0 / height- 1.0;
+                if(image[i][j] != 0) {
+                    glBegin(GL_POINTS);
+                    glColor3f(cval,cval,cval);
+                    //glVertex2f(xval,yval);
+                    
+                    // w, h
+                    glVertex3f(xval,-yval,0.0);
+                    glEnd();
+                }
+            }
+        }
+            
 
+        /*
         glBegin(GL_LINES);
         glColor3f(1.f, 1.f, 0.f);
         // glVertex2f(0.3f, 0.3f);
         glVertex2f(0.0, 0.0);
         glVertex2f(0.5, 0.5);
         glEnd();
+        */
+        
+        
+        
 
         // Swap front and back buffers
         // http://www.glfw.org/docs/latest/group__window.html#ga15a5a1ee5b3c2ca6b15ca209a12efd14
